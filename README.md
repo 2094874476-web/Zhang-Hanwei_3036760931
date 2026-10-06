@@ -4,6 +4,7 @@ The Process of My Replication
 
 1. Data Cleaning and Variable Harmonization (⁠.do⁠ Script Development):
 To replicate the exact specifications of the original paper, I developed a structured Stata ⁠.do⁠ script. First, I cleaned the dataset and generated key structural dummies, including chain identifiers (Burger King, KFC, Roy Rogers, Wendy's) and ownership status (⁠co_owned⁠).
+
 Difference in fte Employment Construction between two waves: Total employment for both Wave 1 (pre-policy) and Wave 2 (post-policy) was standardized into Full-Equivalent Employment (fte) units. Following standard convention, FTE was computed as the sum of full-time employees, managers, and 0.5 times part-time employees (⁠fte = empft + 0.5 * emppt + nmgrs⁠). For permanently closed stores in Wave 2 (⁠status2 == 3⁠), FTE was adjusted to zero.
 Difference:dfte=fte of wave2(fte2)-fte of wave1(fte1)
 
@@ -18,8 +19,14 @@ Employment Models (Table 4): I progressively augmented the baseline DiD specific
 (i)dfte=α+βstate+ε
 (ii)dfte=α+βstate+γX+ε
 (iii)dfte=α+βGAP+γX+ε
-Price Models (Table 7): To investigate the pass-through effects of the minimum wage hike on consumer prices, I calculated the total price of a full meal (⁠meal = psoda + pfry + pentree⁠) and estimated log-price changes (dlnmeal = ln(meal2) - ln(meal1)) against the treatment indicators and chain controls.
 
+Price Models (Table 7): To investigate the pass-through effects of the minimum wage hike on consumer prices, I calculated the total price of a full meal (⁠meal = psoda + pfry + pentree⁠) and estimated log-price changes (dlnmeal = ln(meal2) - ln(meal1)) against the treatment indicators and chain controls. Then regress the following model.
+(i)dlnmeal=α+βstate+ε
+(ii)dlnmeal=α+βstate+γX+ε
+(iii)dlnmeal=α+βGAP+γX+ε
 
+4.extension
+The heterogeneity grouping is based on whether the enterprises are jointly owned (⁠co_owned⁠). According to the value of this variable, the entire sample is clearly divided into two sub-samples with complementary economic characteristics: the jointly-owned enterprise group (⁠co_owned = 1⁠, sample size N = 129) and the non- jointly-owned enterprise group (⁠co_owned = 0⁠, sample size N = 236)
+Based on the grouping, model estimations were conducted separately for the common enterprise sub-sample and the non-common enterprise sub-sample. In the sub-sample regressions, the dependent variable (⁠dfte⁠) and control variables were set in exactly the same way as in the main regression model to ensure the comparability of coefficients between groups, thereby effectively eliminating the confounding effects that might be caused by the ownership structure.
 
 Through this methodical replication workflow, the script successfully recovers the core empirical results of Card & Krueger (1994), providing hands-on validation of quasi-experimental methods in applied econometrics.
