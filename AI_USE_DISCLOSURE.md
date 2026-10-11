@@ -21,7 +21,8 @@ and 7) and the ownership heterogeneity subsample analyses using esttab.
 ● Methodological and Theoretical Framework: AI was consulted to organize the
 background literature regarding difference-in-differences (DiD) models, competitive
 versus monopsonistic labor market theories, and potential empirical extensions.
-3. How AI-Generated Code, Analysis, and Writing Were Checked
+
+2. How AI-Generated Code, Analysis, and Writing Were Checked
 All AI-generated code, text, and analytical suggestions underwent rigorous human review and
 local execution:
 
@@ -33,7 +34,8 @@ statistics.
 ● Theoretical and Statistical Review: The economic rationale behind suggested model
 specifications (such as interaction terms and control variable selections) was manually
 checked to ensure alignment with standard econometric practices.
-4. Important AI Errors or Suggestions That Were Corrected or Rejected
+
+3. Important AI Errors or Suggestions That Were Corrected or Rejected
 
 ● Sample Consistency Correction: Initial AI-suggested regression commands omitted
 explicit missing-value exclusions for key variables (e.g., if !missing(wage_st)).
