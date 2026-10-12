@@ -59,6 +59,7 @@ estimates store m4
 display "=== Table 4 Model (v): Incorporating the control variables for chains and the company's own stores, as well as regions ==="
 reg dfte gap ch_1 ch_3 ch_4 co_owned southj northj pa1 if !missing(dfte) & !missing(wage_st), robust
 estimates store m5
+esttab m1 m2 m3 m4 m5 using "regression_result(dfte).rtf", replace
 *1. A simple regression model for the variation in the total meal price (corresponding to the paper's Table 7)
 display "=== Table 7 Model (i): NJ dummy variable regression for price changes ==="
 reg dlnmeal state if !missing(dlnmeal), robust
@@ -75,7 +76,7 @@ estimates store m9
 display "=== Table 7 Model (iv): Incorporating the control variables for chains and company-owned stores, as well as regions ==="
 reg dlnmeal gap ch_1 ch_3 ch_4 co_owned southj northj pa1 if !missing(dfte) & !missing(wage_st), robust
 estimates store m10
-esttab m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 using "regression_result.rtf", replace
+esttab m6 m7 m8 m9 m10 using "regression_result(dlnmeal).rtf", replace
  
 *extension
 preserve
