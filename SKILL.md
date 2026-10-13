@@ -27,6 +27,60 @@ In the Feb 1992 (Wave 1) graph, both states show massive spikes at the old legal
 
 In the Nov 1992 (Wave 2) graph, New Jersey's distribution shifts sharply to the right, showing a massive clustering of stores bunching right at the new statutory minimum wage of $5.05, whereas Pennsylvania's distribution remains unaffected.
 
+Guide to Replicating and Exporting Table 2 and Table 3 in Stata
+Before running the tables, you must construct the key analytical variables, specifically the Full-Time Equivalent (FTE) employment and the initial wage groups.
+Table 2 presents the means and standard errors of key store characteristics (such as starting wage, full-time/part-time employment breakdown, and company ownership) for New Jersey and Pennsylvania across both waves.
+
+Stata Replication Code for Table 2:
+
+* ==============================================================================
+* Table 2 Replication & Export
+* ==============================================================================
+capture ssc install estout, replace
+eststo clear
+
+* Store summary statistics for New Jersey (Wave 1 & Wave 2)
+eststo t2_nj1: estpost summarize wage_st empft emppt nmgrs fte1 if state == 1
+eststo t2_nj2: estpost summarize wage_st2 empft2 emppt2 nmgrs2 fte2 if state == 1
+
+* Store summary statistics for Pennsylvania (Wave 1 & Wave 2)
+eststo t2_pa1: estpost summarize wage_st empft emppt nmgrs fte1 if state == 0
+eststo t2_pa2: estpost summarize wage_st2 empft2 emppt2 nmgrs2 fte2 if state == 0
+
+* Export Table 2 to CSV
+esttab t2_nj1 t2_nj2 t2_pa1 t2_pa2 using "D:/Table2_Replication.csv", replace ///
+    cells("mean(fmt(2)) sd(fmt(2))") ///
+    collabels("NJ_Wave1" "NJ_Wave2" "PA_Wave1" "PA_Wave2") ///
+    title("Table 2 Replication: Means of Store Characteristics")
+  
+ Replicating and Exporting Table 3
+ 
+Table 3 focuses squarely on employment changes FTE and utilizes the Difference-in-Differences framework, comparing cross-state changes and intra-state wage tiers in New Jersey.Stata Replication Code for Table 3
+* Table 3 Replication & Export
+* ==============================================================================
+eststo clear
+
+* 1. Overall State Means & Changes
+eststo t3_nj: estpost summarize fte1 fte2 dfte if state == 1
+eststo t3_pa: estpost summarize fte1 fte2 dfte if state == 0
+
+* 2. Cross-State Difference-in-Differences (DID Test)
+eststo t3_did: estpost ttest dfte, by(state)
+
+* 3. Intra-NJ Wage Group Breakdown (Low, Mid, High Wage Tiers)
+eststo nj_low:  estpost summarize dfte if nj_wage_grp == 1
+eststo nj_mid:  estpost summarize dfte if nj_wage_grp == 2
+eststo nj_high: estpost summarize dfte if nj_wage_grp == 3
+
+* Export Table 3 to CSV
+esttab t3_nj t3_pa t3_did nj_low nj_mid nj_high using "D:/Table3_Replication.csv", replace ///
+    cells("mean(fmt(2)) sd(fmt(2)) count(fmt(0))") ///
+    collabels("NJ_Stats" "PA_Stats" "DID_Test" "Wage_4.25" "Wage_Mid" "Wage_High") ///
+    title("Table 3 Replication: Employment Changes and DID Estimates")
+
+
+
+
 
 Automated Export of Publication-Ready Tables4
 Purpose
