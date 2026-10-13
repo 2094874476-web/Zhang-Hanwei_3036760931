@@ -1,0 +1,7 @@
+"Table 3 Exact Replication: Employment Levels and Changes"
+"","NJ","","","PA","","","Low-Wage","","","Mid-Wage","","","High-Wage","",""
+"","New Jersey","Pennsylvania","NJ:Wage=4.25","New Jersey","Pennsylvania","NJ:Wage=4.25","New Jersey","Pennsylvania","NJ:Wage=4.25","New Jersey","Pennsylvania","NJ:Wage=4.25","New Jersey","Pennsylvania","NJ:Wage=4.25"
+"fte1","20.43","9.21","309","23.38","12.01","75","","","","","","","","",""
+"fte2","20.90","9.38","309","21.10","8.38","75","","","","","","","","",""
+"dfte","0.47","8.45","309","-2.28","10.85","75","1.20","7.97","94","0.71","7.88","132","-2.16","8.25","67"
+"N","309","","","75","","","94","","","132","","","67","",""
