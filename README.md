@@ -29,4 +29,6 @@ Price Models (Table 7): To investigate the pass-through effects of the minimum w
 The heterogeneity grouping is based on whether the enterprises are jointly owned (⁠co_owned⁠). According to the value of this variable, the entire sample is clearly divided into two sub-samples with complementary economic characteristics: the jointly-owned enterprise group (⁠co_owned = 1⁠, sample size N = 129) and the non- jointly-owned enterprise group (⁠co_owned = 0⁠, sample size N = 236)
 Based on the grouping, model estimations were conducted separately for the common enterprise sub-sample and the non-common enterprise sub-sample. In the sub-sample regressions, the dependent variable (⁠dfte⁠) and control variables were set in exactly the same way as in the main regression model to ensure the comparability of coefficients between groups, thereby effectively eliminating the confounding effects that might be caused by the ownership structure.
 
-Through this methodical replication workflow, the script successfully recovers the core empirical results of Card & Krueger (1994), providing hands-on validation of quasi-experimental methods in applied econometrics.
+Through this methodical replication workflow, the script successfully recovers the core empirical results of Card & Krueger (1994), providing hands-on validation of quasi-experimental methods in applied econometrics.Also，running the "code.do" file in Stata can directly generate the corresponding tables and figures which is the simplest way。 
+
+
