@@ -1,31 +1,54 @@
 Skill : 
-Guide: Replicating Figure 1 (Starting Wage Distributions) in Stata
-1. Stata Implementation Code
-Make sure your dataset (public.csv) is loaded, and run the following script in Stata
-2. Key Methodological Breakdown
-Discrete Histograms (discrete width(0.05)):
+Step 1: Generating Wave 1 (Feb 1992) Figures
+We utilize Stata’s powerful twoway histogram command with discrete binning options to mirror the frequency distributions shown in the original paper.Step 1: Generating Wave 1 (Feb 1992) FiguresPrior to the policy change, both states exhibited nearly identical starting wage distributions, heavily clustered around the federal minimum of $\$4.25$.   
 
-Fast-food starting wages in the data are typically clustered around specific cents (e.g., $4.25, $4.30, $4.35). Using discrete width(0.05) groups the observations into exact 5-cent bins corresponding to standard wage increments.
+preserve
+keep if !missing(wage_st) & !missing(wage_st2)
 
-Group Comparison via Indicator Variables (state):
+* Figure 1A: New Jersey - Wave 1 (Feb 1992)
+twoway histogram wage_st if state==1, discrete width(0.05) color(black) ///
+       title("Figure 1A: New Jersey Starting Wages (Feb 1992)") ///
+       xtitle("Starting Wage ($)") ytitle("Percent of Stores") ///
+       xlabel(4.25(0.1)5.6)
+graph export "Figure1_NJ_Feb1992.png", replace
 
-state == 1 represents New Jersey (the treatment group affected by the minimum wage hike from $4.25 to $5.05).
+* Figure 1B: Pennsylvania - Wave 1 (Feb 1992)
+twoway histogram wage_st if state==0, discrete width(0.05) fcolor(blue%60) lcolor(blue) ///
+       title("Figure 1B: Pennsylvania Starting Wages (Feb 1992)") ///
+       xtitle("Starting Wage ($)") ytitle("Percent of Stores") ///
+       xlabel(4.25(0.1)5.6)
+graph export "Figure1_PA_Feb1992.png", replace
 
-state == 0 represents Pennsylvania (the control group).
+Step 2: Generating Wave 2 (Nov 1992) FiguresFollowing the policy implementation, virtually all fast-food restaurants in New Jersey that previously paid less than $\$5.05$ bunched up precisely at the new statutory minimum, whereas Pennsylvania's distribution remained stable.  
 
-The code overlays two histograms using Stata's parentheses syntax (twoway (histogram ...) (histogram ...)) to allow direct visual comparison between the two states.
+* Figure 1C: New Jersey - Wave 2 (Nov 1992)
+twoway histogram wage_st2 if state==1, discrete width(0.05) color(black) ///
+       title("Figure 1C: New Jersey Starting Wages (Nov 1992)") ///
+       subtitle("Post Minimum Wage Increase to $5.05") ///
+       xtitle("Starting Wage ($)") ytitle("Percent of Stores") ///
+       xlabel(4.25(0.1)5.6)
+graph export "Figure1_NJ_Nov1992.png", replace
 
-Styling and Formatting:
+* Figure 1D: Pennsylvania - Wave 2 (Nov 1992)
+twoway histogram wage_st2 if state==0, discrete width(0.05) fcolor(blue%60) lcolor(blue) ///
+       title("Figure 1D: Pennsylvania Starting Wages (Nov 1992)") ///
+       subtitle("Constant Minimum Wage at $4.25") ///
+       xtitle("Starting Wage ($)") ytitle("Percent of Stores") ///
+       xlabel(4.25(0.1)5.6)
+graph export "Figure1_PA_Nov1992.png", replace
 
-New Jersey: Rendered using solid dark gray bars (color(black%70)) to simulate the solid shading in the original paper.
+restore
 
-Pennsylvania: Rendered using transparent bars with blue dashed outlines (fcolor(none) lcolor(blue) lpattern(dash)) to clearly distinguish it from New Jersey without overlapping distortion.
+4. Key Graphical Options Explained
+discrete width(0.05): Ensures that the histogram treats starting wages as discrete monetary increments (spaced by $\$0.05$ intervals, matching the questionnaire categories).
 
-Economic Interpretation:
+color(black) vs. fcolor(blue%60): Visually distinguishes New Jersey (solid dark styling) from Pennsylvania (translucent blue styling) for clean presentation.
 
-In the Feb 1992 (Wave 1) graph, both states show massive spikes at the old legal minimum wage ($4.25).
+xlabel(4.25(0.1)5.6): Fixes the horizontal axis scaling uniformly from $4.25 to $5.60, making cross-figure comparisons intuitive.
 
-In the Nov 1992 (Wave 2) graph, New Jersey's distribution shifts sharply to the right, showing a massive clustering of stores bunching right at the new statutory minimum wage of $5.05, whereas Pennsylvania's distribution remains unaffected.
+graph export "...", replace: Automatically saves each high-resolution graph directly to the working directory as a standalone PNG image file.
+
+
 
 Guide to Replicating and Exporting Table 2 and Table 3 in Stata
 Before running the tables, you must construct the key analytical variables, specifically the Full-Time Equivalent (FTE) employment and the initial wage groups.
