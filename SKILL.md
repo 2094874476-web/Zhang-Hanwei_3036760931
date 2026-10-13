@@ -1,4 +1,4 @@
-Skill : Automated Export of Publication-Ready Tables
+Skill : Automated Export of Publication-Ready Tables4
 Purpose
 To store multiple regression estimation results in Stata's memory (estimates store) and export formatted, publication-ready multi-column tables directly into RTF or Word formats.
 Stata Template
