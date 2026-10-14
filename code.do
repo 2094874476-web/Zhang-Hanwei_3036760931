@@ -1,7 +1,4 @@
- ==============================================================================
- Card & Krueger (1994) AER 复现 Stata 代码
- 数据文件要求: public.csv
- ==============================================================================
+
 clear all
 set more off
 *1. import data 
@@ -40,7 +37,7 @@ gen dlnmeal = ln(meal2) - ln(meal1)
 
 
 preserve
-* 仅保留有效起薪数据
+
 keep if !missing(wage_st) & !missing(wage_st2)
 
 * ------------------------------------------------------------------------------
@@ -87,23 +84,20 @@ graph export "D:/6067/Figure1_PA_Nov1992.png", replace
 restore	
 	
 *table 2
-
-* 1. 针对新泽西州 (NJ) 运行 tabulate 并保存频数矩阵
 tabulate chain if state == 1, matcell(freq_nj) matrow(cats)
 
-* 2. 针对宾夕法尼亚州 (PA) 运行 tabulate 并保存频数矩阵
+
 tabulate chain if state == 0, matcell(freq_pa)
 
-* 3. 计算百分比矩阵
 matrix pct_nj = freq_nj / 331 * 100
 matrix pct_pa = freq_pa / 79 * 100
 
-* 4. 组合成一个大矩阵并输出
+
 matrix table2 = freq_nj, pct_nj, freq_pa, pct_pa
 matrix colnames table2 = NJ_Freq NJ_Pct PA_Freq PA_Pct
 matrix rownames table2 = BurgerKing KFC RoyRogers Wendyes
 
-* 5. 预览矩阵结果
+
 matrix list table2
 
 * 6. 如果需要导出为 CSV 文件，可以直接用 putexcel
@@ -115,7 +109,7 @@ putexcel A2 = matrix(table2), names
 eststo t2_nj: estpost summarize fte1 fte2 wage_st wage_st2 meal1 meal2 hrsopen hrsopen2 full1 if state == 1, listwise
 eststo t2_pa: estpost summarize fte1 fte2 wage_st wage_st2 meal1 meal2 hrsopen hrsopen2 full2 if state == 0, listwise
 
-* 利用 esttab 导出为 csv 格式，Excel 可以直接完美双击打开
+
 esttab t2_nj t2_pa using "D:/6067/Table2_Rep.csv", replace ///
     cells("mean(fmt(2)) sd(fmt(2))") ///
     collabels("New Jersey (Mean/SD)" "Pennsylvania (Mean/SD)") ///
@@ -123,37 +117,77 @@ esttab t2_nj t2_pa using "D:/6067/Table2_Rep.csv", replace ///
 
 
 	
+*reproduce table 3
+*Define balanced sample identifier (non-missing in both waves)
+gen balanced = (!missing(fte1) & !missing(fte2))
 
-gen balanced = (!missing(fte1) & !missing(fte2))  
+/* STREAMING_CHUNK:Defining New Jersey initial wage groups... */
 
-* 定义 NJ 内部起薪组别 (Table 3 的第 iv, v, vi 列)
+*Define New Jersey Initial Wage Groups (for Table 3 breakdown)
 gen nj_wage_grp = .
 replace nj_wage_grp = 1 if state == 1 & wage_st == 4.25
 replace nj_wage_grp = 2 if state == 1 & wage_st > 4.25 & wage_st < 5.00
 replace nj_wage_grp = 3 if state == 1 & wage_st >= 5.00 & !missing(wage_st)
 
-* 3. 利用 estpost 和 esttab 将 Table 3 所需的核心均值及 DID 结果打包导出
+/* STREAMING_CHUNK:Running summary statistics and Difference-in-Differences tests... */
+
+*==============================================================================
+
+*Replicating Table 3 (Means, Changes, and Difference-in-Differences)
+
+*==============================================================================
+
+display ""
+display "TABLE 3 REPLICATION: OVERALL STATE MEANS & CHANGES"
+display ""
+
+*Summary for New Jersey (Balanced Sample)
+display "-- New Jersey (State == 1) --"
+summarize fte1 fte2 dfte if state == 1 & balanced == 1
+
+*Summary for Pennsylvania (Balanced Sample)
+display "-- Pennsylvania (State == 0) --"
+summarize fte1 fte2 dfte if state == 0 & balanced == 1
+
+*Cross-State Difference-in-Differences (Two-sample t-test on dfte by state)
+display "-- Difference-in-Differences Test (NJ vs PA) --"
+ttest dfte if balanced == 1, by(state)
+
+/* STREAMING_CHUNK:Analyzing New Jersey intra-state wage tiers... */
+display ""
+display "TABLE 3 REPLICATION: NJ INTRA-STATE WAGE TIERS"
+display ""
+
+*Low wage tier ($4.25)
+display "-- NJ Low-Wage Tier (Wage = $4.25) --"
+summarize dfte if nj_wage_grp == 1 & balanced == 1
+
+*Midrange wage tier ($4.26 - $4.99)
+display "-- NJ Mid-Wage Tier ($4.26 - $4.99) --"
+summarize dfte if nj_wage_grp == 2 & balanced == 1
+
+*High wage tier (>= $5.00)
+display "-- NJ High-Wage Tier (>= $5.00) --"
+summarize dfte if nj_wage_grp == 3 & balanced == 1
+
+/* STREAMING_CHUNK:Exporting Table 3 results to CSV... */
+
+*Clean Export using estpost / esttab (if estout package is installed)
 capture ssc install estout, replace
 eststo clear
 
-* (1) 全样本及各州均值与变化量
-eststo t3_nj: estpost summarize fte1 fte2 dfte if state == 1
-eststo t3_pa: estpost summarize fte1 fte2 dfte if state == 0
+eststo t3_nj:   estpost summarize fte1 fte2 dfte if state == 1 & balanced == 1
+eststo t3_pa:   estpost summarize fte1 fte2 dfte if state == 0 & balanced == 1
+eststo nj_low:  estpost summarize dfte if nj_wage_grp == 1 & balanced == 1
+eststo nj_mid:  estpost summarize dfte if nj_wage_grp == 2 & balanced == 1
+eststo nj_high: estpost summarize dfte if nj_wage_grp == 3 & balanced == 1
 
-* (2) 跨州双差检验 (DID)
-eststo t3_did: estpost ttest dfte, by(state)
+esttab t3_nj t3_pa nj_low nj_mid nj_high using "Table3_Replication_Output.csv", replace ///
+cells("mean(fmt(2)) sd(fmt(2)) count(fmt(0))") ///
+collabels("NJ_Stats" "PA_Stats" "Wage_4.25" "Wage_Mid" "Wage_High") ///
+title("Table 3 Replication: Employment Changes and DID Estimates")
 
-* (3) NJ 内部不同起薪组的就业变化量
-eststo nj_low:  estpost summarize dfte if nj_wage_grp == 1
-eststo nj_mid:  estpost summarize dfte if nj_wage_grp == 2
-eststo nj_high: estpost summarize dfte if nj_wage_grp == 3
-
-* 4. 导出为 CSV 文件（可用 Excel 直接双击打开）
-esttab t3_nj t3_pa t3_did nj_low nj_mid nj_high using "D:/6067/Table3_Replication_Detailed.csv", replace ///
-    cells("mean(fmt(2)) sd(fmt(2)) count(fmt(0))") ///
-    collabels("NJ_Stats" "PA_Stats" "DID_Test" "NJ_Wage_4.25" "NJ_Wage_Mid" "NJ_Wage_High") ///
-    plain ///
-    title("Table 3 Replication: Employment Levels, Changes and DID Estimates")
+display "Table 3 replication complete! Results saved to Table3_Replication_Output.csv."
 
 
 	
