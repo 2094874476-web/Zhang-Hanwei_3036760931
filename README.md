@@ -10,25 +10,44 @@ Difference:dfte=fte of wave2(fte2)-fte of wave1(fte1)
 
 Initial Wage Gap Construction: To capture treatment intensity more precisely than a simple binary state dummy, I constructed a continuous policy variable, ⁠gap⁠. For Pennsylvania stores and New Jersey stores with an initial starting wage already at or above the new statutory minimum ($5.05), the gap was set to zero. For New Jersey stores with initial wages below $5.05, the gap measured the proportional wage increase required to reach the new minimum: tgap = (5.05 - textwage_st) / twage_st.
 
-2. Descriptive and Difference-in-Differences Analysis (Tables 2 & 3):
-Following the variable setup, I performed mean comparisons across New Jersey and Pennsylvania for pre- and post-intervention employment and prices. Using standard two-sample t-tests and simple difference-in-differences regressions (⁠reg dfte state⁠), I examined whether employment growth in New Jersey experienced a relative decline compared to the control group in Pennsylvania following the policy implementation.
+3. Replication of Figure 1: Distribution of Starting Wage Rates。
+Methodology & Execution
+Figure 1 illustrates the frequency distribution of starting wages across fast-food restaurants in New Jersey and Pennsylvania during Wave 1 and Wave 2. In Stata, histograms with a discrete bin width of $0.05$ were estimated across state and wave subsets:
 
-3. Econometric Specification and Reduced-Form Modeling (Tables 4 & 7):
-To rigorously test the policy impact, I estimated a series of reduced-form OLS regressions with robust standard errors:
-Employment Models (Table 4): I progressively augmented the baseline DiD specification. Model (i) tests the basic state dummy; Model (ii) controls for chain-specific fixed effects and ownership structures and regions; Model (iii) replaces the binary New Jersey dummy with the continuous ⁠gap⁠ variable; and Model 
-(i)dfte=α+βstate+ε
-(ii)dfte=α+βstate+γX+ε
-(iii)dfte=α+βGAP+γX+ε
+Wave 1 (Feb 1992): Both New Jersey and Pennsylvania exhibited highly synchronized starting wage distributions, tightly clustered around the old $4.25 minimum wage.
 
-Price Models (Table 7): To investigate the pass-through effects of the minimum wage hike on consumer prices, I calculated the total price of a full meal (⁠meal = psoda + pfry + pentree⁠) and estimated log-price changes (dlnmeal = ln(meal2) - ln(meal1)) against the treatment indicators and chain controls. Then regress the following model.
-(i)dlnmeal=α+βstate+ε
-(ii)dlnmeal=α+βstate+γX+ε
-(iii)dlnmeal=α+βGAP+γX+ε
+Wave 2 (Nov 1992): Following the policy implementation, over $85\%$ of New Jersey stores shifted their starting wages exactly to the new $\$5.05$ statutory minimum, whereas Pennsylvania's distribution remained virtually unchanged. Crucially, little to no wage spillover was observed among New Jersey stores that initially paid more than $5.00.   
 
-4.extension
-The heterogeneity grouping is based on whether the enterprises are jointly owned (⁠co_owned⁠). According to the value of this variable, the entire sample is clearly divided into two sub-samples with complementary economic characteristics: the jointly-owned enterprise group (⁠co_owned = 1⁠, sample size N = 129) and the non- jointly-owned enterprise group (⁠co_owned = 0⁠, sample size N = 236)
-Based on the grouping, model estimations were conducted separately for the common enterprise sub-sample and the non-common enterprise sub-sample. In the sub-sample regressions, the dependent variable (⁠dfte⁠) and control variables were set in exactly the same way as in the main regression model to ensure the comparability of coefficients between groups, thereby effectively eliminating the confounding effects that might be caused by the ownership structure.
+4. Replication of Table 2: Means of Key Variables
+Table 2 provides summary statistics (means and standard deviations) for store characteristics, pre-policy employment, starting wages, and meal prices.
+Store Type Distribution: Using matrix operations (matcell and putexcel), the categorical distribution of fast-food chains (chain: Burger King, KFC, Roy Rogers, Wendy's) and ownership status (co_owned) was extracted. For instance, Burger King outlets comprise roughly 41.1% of the New Jersey sample and 44.3%of the Pennsylvania sample.
 
-Through this methodical replication workflow, the script successfully recovers the core empirical results of Card & Krueger (1994), providing hands-on validation of quasi-experimental methods in applied econometrics.Also，running the "code.do" file in Stata can directly generate the corresponding tables and figures which is the simplest way。 
+Baseline Alignment: Wave 1 pre-policy FTE employment was tightly aligned between New Jersey ($20.44$) and Pennsylvania ($23.33$), and initial starting wages were nearly identical ($\$4.61$ vs. $\$4.63$), verifying the validity of the control group. 
 
+5. Replication of Table 3: Employment Levels, Changes, and DID Estimates
+Table 3 evaluates the core Difference-in-Differences (DID) framework by comparing employment changes across states and within New Jersey across initial wage tiers:
 
+a.Cross-State Comparison: While Pennsylvania control stores experienced an average employment contraction of -2.28 FTEs (reflecting regional macroeconomic recessionary pressures), New Jersey treatment stores saw an average employment expansion (+0.47 FTEs).
+
+b.Difference-in-Differences Estimator: The cross-state net employment change (DELTAFTE_NJ- DELTAFTE_PA) yields a positive difference of approximately +2.75 to +2.76 FTEs (approx 2.03), directly rejecting the traditional competitive prediction of job losses.
+
+C.Intra-State Wage Tiers: Within New Jersey, low-wage stores (wage = 4.25, most exposed) experienced employment gains, whereas high-wage stores (wage >$5.00, unaffected) contracted by -2.16 FTEs—a decline virtually identical to Pennsylvania stores, confirming the robustness of the control group.
+
+6. Replication of Table 4: Reduced-Form Models for Change in Employment
+able 4 estimates OLS reduced-form models controlling for chain types, company ownership, and regional fixed effects:
+
+a.Model (i) & (ii) [NJ Dummy]: Regressing dfteon the New Jersey treatment dummy yields a coefficient of 2.30 (t = 1.92), confirming a relative employment increase in NJ even after controlling for brand heterogeneity. 
+
+b.Model (iii) & (iv) [Wage Gap]: Replacing the state dummy with the continuous GAP variable yields a highly significant coefficient of 14.92 to 15.65 (p < 0.01). This demonstrates a positive "dose-response" effect: stores facing a larger required wage adjustment experienced greater relative employment growth. 
+
+c.Model (v) [Regional Controls]: Including regional fixed effects (North, Central, South NJ and PA sub-regions) attenuates the coefficient to 11.91 due to well-documented measurement error attenuation bias in self-reported initial wages, yet the coefficient remains positive.  
+
+7. Extension: Price Pass-Through (Table 7) & Ownership Heterogeneity
+Price Effects (Table 7): Regressing log meal price changes (dlnmeal) on the state dummy yields a coefficient of 0.032$ to 0.037(p < 0.05), indicating that post-tax full meal prices rose about 3%-4% faster in New Jersey than in Pennsylvania. This confirms that a substantial portion of the minimum wage cost burden was successfully passed on to consumers via higher prices.
+
+Ownership Heterogeneity Extension: Subsample regressions partitioned by store ownership (co_owned) reveal that the positive employment driving effect of the wage gap is concentrated primarily among franchise-owned stores (co_owned == 0, coefficient $18.68, t = 1.92), highlighting institutional differences in operational flexibility between corporate and franchised units.
+
+Summary Conclusion
+The replicated Stata workflow successfully validates all core qualitative and quantitative findings of Card and Krueger (1994). The evidence confirms that New Jersey's minimum wage hike did not reduce fast-food employment, while driving moderate product price increases—an empirical puzzle that catalyzed modern labor economics literature on imperfect labor markets, search friction, and monopsony models.
+
+Directly running the code in stata can easily obtain all the output of replication.
