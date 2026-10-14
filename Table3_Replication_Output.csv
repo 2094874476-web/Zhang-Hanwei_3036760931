@@ -1,0 +1,16 @@
+Table 3 Replication: Employment Changes and DID Estimates,,,,,,,,,
+,(1),,,(2),,,,,
+,,,,,,,,,
+,NJ_Stats,PA_Stats,Wage_4.25,NJ_Stats,PA_Stats,Wage_4.25,,,
+fte1,20.43,9.21,309,23.38,12.01,75,,,
+fte2,20.90,9.38,309,21.10,8.38,75,,,
+dfte,0.47,8.45,309,-2.28,10.85,75,,,
+N,309,,,75,,,,,
+,,,,,,,,,
+,(3),,,(4),,,(5),,
+,,,,,,,,,
+fte1,NJ_Stats,PA_Stats,Wage_4.25,NJ_Stats,PA_Stats,Wage_4.25,NJ_Stats,PA_Stats,Wage_4.25
+fte2,,,,,,,,,
+dfte,,,,,,,,,
+N,1.20,7.97,94,0.71,7.88,132,-2.16,8.25,67
+,94,,,132,,,67,,
