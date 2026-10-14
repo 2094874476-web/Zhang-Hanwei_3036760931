@@ -86,12 +86,32 @@ graph export "D:/6067/Figure1_PA_Nov1992.png", replace
 
 restore	
 	
-	
+*table 2
+
+* 1. 针对新泽西州 (NJ) 运行 tabulate 并保存频数矩阵
+tabulate chain if state == 1, matcell(freq_nj) matrow(cats)
+
+* 2. 针对宾夕法尼亚州 (PA) 运行 tabulate 并保存频数矩阵
+tabulate chain if state == 0, matcell(freq_pa)
+
+* 3. 计算百分比矩阵
+matrix pct_nj = freq_nj / 331 * 100
+matrix pct_pa = freq_pa / 79 * 100
+
+* 4. 组合成一个大矩阵并输出
+matrix table2 = freq_nj, pct_nj, freq_pa, pct_pa
+matrix colnames table2 = NJ_Freq NJ_Pct PA_Freq PA_Pct
+matrix rownames table2 = BurgerKing KFC RoyRogers Wendyes
+
+* 5. 预览矩阵结果
+matrix list table2
+
+* 6. 如果需要导出为 CSV 文件，可以直接用 putexcel
+putexcel set "D:/6067/Table2_Matrix_Replication.xlsx", replace
+putexcel A1 = ("Chain") B1 = ("NJ (N)") C1 = ("NJ (%)") D1 = ("PA (N)") E1 = ("PA (%)")
+putexcel A2 = matrix(table2), names	
 
 
-* ==============================================================================
-* 2. 复现并导出 Table 2 到 Excel (D:/Table2_Replication.csv)
-* ==============================================================================
 eststo t2_nj: estpost summarize fte1 fte2 wage_st wage_st2 meal1 meal2 hrsopen hrsopen2 full1 if state == 1, listwise
 eststo t2_pa: estpost summarize fte1 fte2 wage_st wage_st2 meal1 meal2 hrsopen hrsopen2 full2 if state == 0, listwise
 
