@@ -1,0 +1,177 @@
+Reusable Stata Skills for Generating Main Tables and Figures: Card & Krueger (1994) Replication
+1. Overview and Purpose of Reusable Stata Workflows
+To replicate the empirical framework of Card and Krueger (1994) efficiently and reproducibly, the provided Stata script (code.do) encapsulates modular, reusable routines. These routines clean raw fast-food establishment survey data (public.csv), construct core econometric indicators, generate visual distributions, and export structured regression and summary tables.
+
+This documentation details the reusable Stata skills and modular code blocks embedded in the workflow for generating Figure 1, Table 2, Table 3, Table 4, and Table 7.
+
+
+2. Reusable Skill Modules
+Module A: Data Initialization and Core Variable Construction
+Skill Description: Standardizes raw data input, converts text/variable names to lowercase, generates chain indicator dummies (ch_), constructs Full-Time Equivalent (FTE) labor measures across both survey waves with permanent closure adjustments (status2 == 3), computes the initial wage gap exposure variable (gap), and defines full meal price changes (dlnmeal).
+Core Stata Code Block:
+
+clear all
+
+set more off
+
+import delimited "public.csv", clear
+
+rename *, lower
+
+* Chain dummies
+
+tab chain, gen(ch_)
+
+* FTE definitions
+
+gen fte1 = empft + 0.5 * emppt + nmgrs
+
+gen fte2 = empft2 + 0.5 * emppt2 + nmgrs2
+
+replace fte2 = 0 if status2 == 3
+
+gen dfte = fte2 - fte1
+
+* Wage gap construction
+
+gen gap = 0
+
+replace gap = (5.05 - wage_st) / wage_st if state == 1 & wage_st < 5.05 & !missing(wage_st)
+
+replace gap = 0 if state == 1 & wage_st >= 5.05 & !missing(wage_st)
+
+* Meal price log changes
+
+gen meal1 = psoda + pfry + pentree
+
+gen meal2 = psoda2 + pfry2 + pentree2
+
+gen dlnmeal = ln(meal2) - ln(meal1)
+
+
+Module B: Visualizing Starting Wage Distributions (Figure 1 Skill)
+Skill Description: Generates discrete histograms with a fixed bin width ($0.05$) to illustrate starting wage distributions across states (NJ vs. PA) and survey waves (Wave 1 vs. Wave 2), capturing the sharp spike at the new $$5.05$ statutory minimum wage in New Jersey.
+Core Stata Code Block:
+
+preserve
+
+keep if !missing(wage_st) & !missing(wage_st2)
+
+* Figure 1A: New Jersey - Wave 1
+
+twoway histogram wage_st if state==1, discrete width(0.05) color(black) ///
+
+       title("Figure 1A: New Jersey Starting Wages (Feb 1992)") ///
+
+       xtitle("Starting Wage ($)") ytitle("Percent of Stores") ///
+
+       xlabel(4.25(0.1)5.6)
+
+graph export "Figure1_NJ_Feb1992.png", replace
+
+* Figure 1C: New Jersey - Wave 2
+
+twoway histogram wage_st2 if state==1, discrete width(0.05) color(black) ///
+
+       title("Figure 1C: New Jersey Starting Wages (Nov 1992)") ///
+
+       subtitle("Post Minimum Wage Increase to $5.05") ///
+
+       xtitle("Starting Wage ($)") ytitle("Percent of Stores") ///
+
+       xlabel(4.25(0.1)5.6)
+
+graph export "Figure1_NJ_Nov1992.png", replace
+
+restore
+
+
+Module C: Tabulating Chain Distribution & Summary Stats (Table 2 Skill)
+Skill Description: Extracts categorical chain proportions using native Stata matrix operations (matcell, matrow) combined with putexcel, and computes summary statistics (means and standard deviations) via estpost summarize and esttab.
+Core Stata Code Block:
+
+* Matrix-based store type tabulation
+
+tabulate chain if state == 1, matcell(freq_nj) matrow(cats)
+
+tabulate chain if state == 0, matcell(freq_pa)
+
+matrix pct_nj = freq_nj / 331 * 100
+
+matrix pct_pa = freq_pa / 79 * 100
+
+matrix table2 = freq_nj, pct_nj, freq_pa, pct_pa
+
+matrix colnames table2 = NJ_Freq NJ_Pct PA_Freq PA_Pct
+
+matrix rownames table2 = BurgerKing KFC RoyRogers Wendyes
+
+* Summary statistics export for Table 2
+
+eststo t2_nj: estpost summarize fte1 fte2 wage_st wage_st2 meal1 meal2 hrsopen hrsopen2 if state == 1, listwise
+
+eststo t2_pa: estpost summarize fte1 fte2 wage_st wage_st2 meal1 meal2 hrsopen hrsopen2 if state == 0, listwise
+
+esttab t2_nj t2_pa using "Table2_Rep.csv", replace cells("mean(fmt(2)) sd(fmt(2))") plain
+
+
+Module D: Balanced Panel Filtering and Difference-in-Differences (Table 3 Skill)
+Skill Description: Filters the balanced panel subset (balanced == 1), classifies New Jersey stores into initial wage tiers (nj_wage_grp), executes cross-state and intra-state summary statistics, runs two-sample $t$-tests for Difference-in-Differences (DID), and exports detailed CSV summaries.
+Core Stata Code Block:
+
+gen balanced = (!missing(fte1) & !missing(fte2))
+
+gen nj_wage_grp = .
+
+replace nj_wage_grp = 1 if state == 1 & wage_st == 4.25
+
+replace nj_wage_grp = 2 if state == 1 & wage_st > 4.25 & wage_st < 5.00
+
+replace nj_wage_grp = 3 if state == 1 & wage_st >= 5.00 & !missing(wage_st)
+
+* Cross-state DID t-test
+
+ttest dfte if balanced == 1, by(state)
+
+* Export Table 3 structured stats
+
+eststo clear
+
+eststo t3_nj:   estpost summarize fte1 fte2 dfte if state == 1 & balanced == 1
+
+eststo t3_pa:   estpost summarize fte1 fte2 dfte if state == 0 & balanced == 1
+
+eststo nj_low:  estpost summarize dfte if nj_wage_grp == 1 & balanced == 1
+
+eststo nj_mid:  estpost summarize dfte if nj_wage_grp == 2 & balanced == 1
+
+eststo nj_high: estpost summarize dfte if nj_wage_grp == 3 & balanced == 1
+
+esttab t3_nj t3_pa nj_low nj_mid nj_high using "Table3_Replication_Output.csv", replace ///
+
+    cells("mean(fmt(2)) sd(fmt(2)) count(fmt(0))") plain
+
+
+Module E: Reduced-Form Regression Modeling (Table 4 & Table 7 Skill)
+Skill Description: Estimates robust OLS regression models for employment changes (dfte) and full meal price log changes (dlnmeal) across multiple specifications (treatment dummies, continuous wage gaps, chain/ownership controls, and regional fixed effects), alongside heterogeneity sub-sample extensions.
+Core Stata Code Block:
+
+* Table 4: Employment Change Regressions
+
+reg dfte state if !missing(dfte) & !missing(wage_st), robust
+
+estimates store m1
+
+reg dfte state ch_1 ch_3 ch_4 co_owned if !missing(dfte) & !missing(wage_st), robust
+
+estimates store m2
+
+reg dfte gap ch_1 ch_3 ch_4 co_owned southj northj pa1 if !missing(dfte) & !missing(wage_st), robust
+
+estimates store m5
+
+esttab m1 m2 m5 using "regression_result.rtf", replace
+
+
+3. Summary
+The modular structure of code.do acts as an automated, reusable skill library in Stata. It ensures that data cleaning, variable transformations, distributional plotting, and table export can be executed seamlessly in a single pipeline, facilitating absolute reproducibility for econometric research.
