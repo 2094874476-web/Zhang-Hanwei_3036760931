@@ -111,15 +111,15 @@ To store multiple regression estimation results in Stata's memory (estimates sto
 Stata Template
 * Store sequential models
 
-reg dlnmeal state if !missing(dlnmeal), robust
+reg dfte state if !missing(dlnmeal), robust
 
 estimates store m6
 
-reg dlnmeal state ch_1 ch_3 ch_4 co_owned if !missing(dlnmeal), robust
+reg dfte state ch_1 ch_3 ch_4 co_owned if !missing(dlnmeal), robust
 
 estimates store m7
 
-reg dlnmeal gap if !missing(dlnmeal), robust
+reg dfte gap if !missing(dlnmeal), robust
 
 estimates store m8
 
