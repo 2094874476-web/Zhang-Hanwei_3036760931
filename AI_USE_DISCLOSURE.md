@@ -1,4 +1,5 @@
 AI-Use Disclosure
+AI：Gemini
 In the replication and extension of the classic empirical study by David Card and Alan B.
 Krueger (1994), "Minimum Wages and Employment: A Case Study of the Fast-Food Industry in
 New Jersey and Pennsylvania" , artificial intelligence (AI) tools were utilized as an
