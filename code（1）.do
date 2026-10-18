@@ -40,7 +40,7 @@ gen dlnmeal = ln(meal2) - ln(meal1)
 
 
 preserve
-* 仅保留有效起薪数据
+
 keep if !missing(wage_st) & !missing(wage_st2)
 
 * ------------------------------------------------------------------------------
